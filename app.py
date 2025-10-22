@@ -1,3 +1,65 @@
+# Interfaz de pregunta
+st.subheader("Escribe qué quieres saber sobre el documento")
+user_question = st.text_area(" ", placeholder="Escribe tu pregunta aquí...")
+
+# Selector de idioma de respuesta
+response_lang = st.selectbox("Idioma de respuesta", ["Inglés 🇬🇧", "Italiano 🇮🇹"], index=0)
+lang_instruction = "Please answer in English." if response_lang == "Inglés 🇬🇧" else "Rispondi in italiano."
+
+# Procesar pregunta
+if user_question:
+    docs = knowledge_base.similarity_search(user_question)
+    
+    # Modelo de lenguaje
+    llm = OpenAI(temperature=0, model_name="gpt-4o")
+
+    # Cargar cadena de QA
+    chain = load_qa_chain(llm, chain_type="stuff")
+    
+    # Agregar instrucción de idioma
+    full_question = f"{user_question}\n\n{lang_instruction}"
+
+    # Ejecutar el chain
+    response = chain.run(input_documents=docs, question=full_question)
+
+    # Mostrar resultado
+    st.markdown("### Respuesta:")
+    st.markdown(response)
+🌍 ¿Qué hace esto?
+Muestra un menú con las opciones “Inglés 🇬🇧” o “Italiano 🇮🇹”
+
+Según la opción, el prompt agrega automáticamente:
+
+"Please answer in English." o
+
+"Rispondi in italiano."
+
+El modelo (GPT-4o) responderá en ese idioma, sin importar el idioma del PDF o de la pregunta.
+
+¿Quieres que además te lo deje con banderitas en los botones o color rosado en el selector para mantener la estética de tus otras apps? 🎀
+
+
+
+
+
+
+
+Tú dijiste:
+pero dame todo el codigo
+
+
+ChatGPT Plus
+Perfecto Isa 💖✨ aquí tienes todo tu código completo, ya actualizado para que:
+
+La interfaz siga en español,
+
+Pero el modelo responda en inglés o en italiano, según lo que elijas en el menú,
+
+Todo perfectamente integrado y con tu estructura original intacta.
+
+🎧 Chat PDF Multilenguaje (Español UI, inglés/italiano output)
+python
+Copiar código
 import os
 import streamlit as st
 from PIL import Image
@@ -10,10 +72,10 @@ from langchain.chains.question_answering import load_qa_chain
 import platform
 
 # ---------- Configuración de la App ----------
-st.set_page_config(page_title="RAG Multilenguaje directioner 💬", page_icon="📚", layout="centered")
+st.set_page_config(page_title="RAG Multilenguaje 💬", page_icon="📚", layout="centered")
 
 # Título e info general
-st.title('RAG directioner multilingue 💬')
+st.title('Generación Aumentada por Recuperación (RAG) 💬')
 st.write("Versión de Python:", platform.python_version())
 
 # Imagen decorativa
