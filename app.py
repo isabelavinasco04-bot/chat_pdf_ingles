@@ -13,7 +13,7 @@ import platform
 st.set_page_config(page_title="RAG Multilenguaje directioner 💬", page_icon="📚", layout="centered")
 
 # Título e info general
-st.title('Generación Aumentada por Recuperación (RAG) 💬')
+st.title('RAG directioner multilingue 💬')
 st.write("Versión de Python:", platform.python_version())
 
 # Imagen decorativa
