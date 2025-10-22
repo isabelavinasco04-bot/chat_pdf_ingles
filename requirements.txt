@@ -1,7 +1,7 @@
 streamlit
 pillow
 PyPDF2
-openai
+openai==0.28
 langchain==0.1.17
 langchain-openai
 faiss-cpu==1.7.4
