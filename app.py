@@ -9,35 +9,40 @@ from langchain.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 import platform
 
-# App title and presentation
+# ---------- Configuración de la App ----------
+st.set_page_config(page_title="RAG Multilenguaje 💬", page_icon="📚", layout="centered")
+
+# Título e info general
 st.title('Generación Aumentada por Recuperación (RAG) 💬')
 st.write("Versión de Python:", platform.python_version())
 
-# Load and display image
+# Imagen decorativa
 try:
     image = Image.open('Chat_pdf.png')
     st.image(image, width=350)
 except Exception as e:
     st.warning(f"No se pudo cargar la imagen: {e}")
 
-# Sidebar information
+# Sidebar informativa
 with st.sidebar:
-    st.subheader("Este Agente te ayudará a realizar análisis sobre el PDF cargado")
+    st.subheader("Asistente de análisis de PDF")
+    st.write("Este agente te ayudará a realizar análisis sobre el PDF cargado.")
+    st.caption("💡 Ahora puedes elegir que las respuestas sean en inglés o italiano.")
 
-# Get API key from user
+# Clave API
 ke = st.text_input('Ingresa tu Clave de OpenAI', type="password")
 if ke:
     os.environ['OPENAI_API_KEY'] = ke
 else:
     st.warning("Por favor ingresa tu clave de API de OpenAI para continuar")
 
-# PDF uploader
+# Carga del PDF
 pdf = st.file_uploader("Carga el archivo PDF", type="pdf")
 
-# Process the PDF if uploaded
+# Procesamiento del PDF
 if pdf is not None and ke:
     try:
-        # Extract text from PDF
+        # Extraer texto del PDF
         pdf_reader = PdfReader(pdf)
         text = ""
         for page in pdf_reader.pages:
@@ -45,7 +50,7 @@ if pdf is not None and ke:
         
         st.info(f"Texto extraído: {len(text)} caracteres")
         
-        # Split text into chunks
+        # Dividir texto en fragmentos
         text_splitter = CharacterTextSplitter(
             separator="\n",
             chunk_size=500,
@@ -55,37 +60,43 @@ if pdf is not None and ke:
         chunks = text_splitter.split_text(text)
         st.success(f"Documento dividido en {len(chunks)} fragmentos")
         
-        # Create embeddings and knowledge base
+        # Crear embeddings y base de conocimiento
         embeddings = OpenAIEmbeddings()
         knowledge_base = FAISS.from_texts(chunks, embeddings)
         
-        # User question interface
+        # Sección de pregunta
         st.subheader("Escribe qué quieres saber sobre el documento")
         user_question = st.text_area(" ", placeholder="Escribe tu pregunta aquí...")
-        
-        # Process question when submitted
+
+        # Selección de idioma de respuesta
+        response_lang = st.selectbox("Idioma de respuesta", ["Inglés 🇬🇧", "Italiano 🇮🇹"], index=0)
+        lang_instruction = "Please answer in English." if response_lang == "Inglés 🇬🇧" else "Rispondi in italiano."
+
+        # Procesar pregunta
         if user_question:
             docs = knowledge_base.similarity_search(user_question)
             
-            # Use a current model instead of deprecated text-davinci-003
-            # Options: "gpt-3.5-turbo-instruct" or "gpt-4-turbo-preview" depending on your API access
+            # Crear modelo (GPT-4o o compatible)
             llm = OpenAI(temperature=0, model_name="gpt-4o")
-            
-            # Load QA chain
+
+            # Cargar cadena QA
             chain = load_qa_chain(llm, chain_type="stuff")
             
-            # Run the chain
-            response = chain.run(input_documents=docs, question=user_question)
-            
-            # Display the response
+            # Agregar instrucción de idioma al prompt
+            full_question = f"{user_question}\n\n{lang_instruction}"
+
+            with st.spinner("Analizando el documento... ✨"):
+                response = chain.run(input_documents=docs, question=full_question)
+
+            # Mostrar respuesta
             st.markdown("### Respuesta:")
             st.markdown(response)
                 
     except Exception as e:
         st.error(f"Error al procesar el PDF: {str(e)}")
-        # Add detailed error for debugging
         import traceback
         st.error(traceback.format_exc())
+
 elif pdf is not None and not ke:
     st.warning("Por favor ingresa tu clave de API de OpenAI para continuar")
 else:
