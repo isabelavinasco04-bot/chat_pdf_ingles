@@ -10,7 +10,7 @@ from langchain.chains.question_answering import load_qa_chain
 import platform
 
 # ---------- Configuración de la App ----------
-st.set_page_config(page_title="RAG Multilenguaje 💬", page_icon="📚", layout="centered")
+st.set_page_config(page_title="RAG Multilenguaje directioner 💬", page_icon="📚", layout="centered")
 
 # Título e info general
 st.title('Generación Aumentada por Recuperación (RAG) 💬')
