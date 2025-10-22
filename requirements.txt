@@ -2,7 +2,6 @@ streamlit
 pillow
 PyPDF2
 openai==0.28
-langchain==0.1.17
-langchain-openai
-faiss-cpu==1.7.4
+langchain==0.0.308
+faiss-cpu==1.7.3
 tiktoken
